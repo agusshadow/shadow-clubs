@@ -1,5 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/service'
-import { resend, FROM } from '@/lib/email'
+import { getResend, FROM } from '@/lib/email'
 import {
   reservationConfirmedEmail,
   reservationCancelledEmail,
@@ -79,7 +79,7 @@ export async function sendReservationNotification(
 
   // Send email (skip gracefully if API key not configured)
   if (process.env.RESEND_API_KEY) {
-    const { error } = await resend.emails.send({
+    const { error } = await getResend().emails.send({
       from: FROM,
       to: userEmail,
       subject,
