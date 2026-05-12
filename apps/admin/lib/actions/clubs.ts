@@ -53,6 +53,18 @@ export async function createClub(formData: FormData) {
   redirect(`/clubs/${data.id}`)
 }
 
+export async function updateClubImages(
+  id: string,
+  images: { cover_url?: string; logo_url?: string }
+) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('clubs').update(images).eq('id', id)
+  if (error) return { error: error.message }
+  revalidatePath(`/clubs/${id}`)
+  revalidatePath('/clubs')
+  return { success: true }
+}
+
 export async function updateClub(id: string, formData: FormData) {
   const raw = Object.fromEntries(formData)
   const parsed = clubSchema.safeParse({
