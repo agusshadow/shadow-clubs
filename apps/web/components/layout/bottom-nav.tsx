@@ -2,11 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Calendar, Compass, Home, User } from 'lucide-react'
+import { Calendar, Compass, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/', label: 'Inicio', icon: Home, exact: true },
   { href: '/explore', label: 'Explorar', icon: Compass, exact: false },
   { href: '/reservations', label: 'Reservas', icon: Calendar, exact: false },
   { href: '/profile', label: 'Perfil', icon: User, exact: false },
