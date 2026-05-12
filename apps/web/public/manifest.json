@@ -1,0 +1,38 @@
+{
+  "name": "Shadow Clubs",
+  "short_name": "Shadow Clubs",
+  "description": "Reservá tu cancha favorita",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#18181b",
+  "lang": "es",
+  "categories": ["sports", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Explorar canchas",
+      "url": "/explore",
+      "description": "Buscar canchas disponibles"
+    },
+    {
+      "name": "Mis reservas",
+      "url": "/reservations",
+      "description": "Ver mis reservas"
+    }
+  ]
+}
