@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
+import { sendReservationNotification } from '@/lib/notifications'
 
 type MpNotification = {
   action: string
@@ -106,12 +107,18 @@ export async function POST(req: NextRequest) {
     })
     .eq('reservation_id', reservationId)
 
-  // Update reservation if terminal status reached
+  // Update reservation if terminal status reached and send notification
   if (reservationStatus) {
     await supabase
       .from('reservations')
       .update({ status: reservationStatus })
       .eq('id', reservationId)
+
+    // Fire-and-forget — don't block the webhook response
+    sendReservationNotification(
+      reservationId,
+      paymentStatus === 'approved' ? 'reservation_confirmed' : 'payment_rejected'
+    ).catch((err) => console.error('Notification error:', err))
   }
 
   return NextResponse.json({ received: true })

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { sendReservationNotification } from '@/lib/notifications'
 
 export async function cancelReservation(reservationId: string): Promise<void> {
   const supabase = await createClient()
@@ -33,6 +34,10 @@ export async function cancelReservation(reservationId: string): Promise<void> {
     .from('reservations')
     .update({ status: 'cancelled', cancelled_at: new Date().toISOString() })
     .eq('id', reservationId)
+
+  sendReservationNotification(reservationId, 'reservation_cancelled').catch((err) =>
+    console.error('Notification error:', err)
+  )
 
   revalidatePath('/reservations')
   redirect('/reservations?tab=cancelled')
