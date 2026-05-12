@@ -11,7 +11,7 @@ interface Props {
 
 export default async function ExplorePage({ searchParams }: Props) {
   const { sport, q, view } = await searchParams
-  const isMap = view === 'map'
+  const isMap = view !== 'list'
   const supabase = await createClient()
 
   let query = supabase
