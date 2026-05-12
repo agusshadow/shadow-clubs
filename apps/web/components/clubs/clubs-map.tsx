@@ -2,29 +2,36 @@
 
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ArrowRight, X } from 'lucide-react'
 
 export type MapClub = {
   id: string
   name: string
   slug: string
+  city: string
   lat: number | null
   lng: number | null
 }
 
 const BUENOS_AIRES: [number, number] = [-34.6037, -58.3816]
 
-function clubIcon(name: string) {
+function pinIcon(active = false) {
+  const bg = active ? '#2563eb' : '#18181b'
   return L.divIcon({
     className: '',
-    html: `<div style="background:#18181b;color:white;border-radius:9999px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.35);border:1.5px solid white;cursor:pointer">${name}</div>`,
-    iconAnchor: [0, 0],
-    popupAnchor: [0, -10],
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32" width="28" height="36"
+        style="filter:drop-shadow(0 2px 5px rgba(0,0,0,0.4));cursor:pointer;display:block">
+      <path d="M12 0C7.16 0 3.27 3.89 3.27 8.73 3.27 15.27 12 28 12 28S20.73 15.27 20.73 8.73C20.73 3.89 16.84 0 12 0z" fill="${bg}"/>
+      <circle cx="12" cy="8.5" r="4" fill="white"/>
+    </svg>`,
+    iconSize: [28, 36],
+    iconAnchor: [14, 36],
   })
 }
 
-const userIcon = L.divIcon({
+const userDotIcon = L.divIcon({
   className: '',
   html: `<div style="width:14px;height:14px;background:#3b82f6;border-radius:50%;border:2.5px solid white;box-shadow:0 0 0 4px rgba(59,130,246,0.25)"></div>`,
   iconSize: [14, 14],
@@ -34,6 +41,8 @@ const userIcon = L.divIcon({
 export function ClubsMap({ clubs }: { clubs: MapClub[] }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
+  const markersRef = useRef<Map<string, L.Marker>>(new Map())
+  const [selected, setSelected] = useState<MapClub | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -52,22 +61,65 @@ export function ClubsMap({ clubs }: { clubs: MapClub[] }) {
     clubs
       .filter((c) => c.lat != null && c.lng != null)
       .forEach((club) => {
-        L.marker([club.lat!, club.lng!], { icon: clubIcon(club.name) })
-          .addTo(map)
-          .on('click', () => router.push(`/clubs/${club.slug}`))
+        const marker = L.marker([club.lat!, club.lng!], { icon: pinIcon() }).addTo(map)
+        markersRef.current.set(club.id, marker)
+        marker.on('click', (e) => {
+          L.DomEvent.stopPropagation(e)
+          setSelected(club)
+        })
       })
+
+    map.on('click', () => setSelected(null))
 
     navigator.geolocation?.getCurrentPosition((pos) => {
       const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude]
-      L.marker(coords, { icon: userIcon }).addTo(map)
+      L.marker(coords, { icon: userDotIcon }).addTo(map)
       map.flyTo(coords, 13, { duration: 1.2 })
     })
 
     return () => {
       map.remove()
       mapRef.current = null
+      markersRef.current.clear()
     }
-  }, [clubs, router])
+  }, [clubs])
 
-  return <div ref={containerRef} className="h-full w-full" />
+  // Swap pin color when selection changes
+  useEffect(() => {
+    markersRef.current.forEach((marker, id) => {
+      marker.setIcon(pinIcon(selected?.id === id))
+    })
+  }, [selected])
+
+  return (
+    <div className="relative h-full w-full">
+      <div ref={containerRef} className="h-full w-full" />
+
+      {selected && (
+        <div className="animate-in slide-in-from-bottom-2 absolute right-4 bottom-4 left-4 z-[1000] duration-150">
+          <div className="bg-card rounded-2xl border p-4 shadow-xl">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate font-semibold">{selected.name}</p>
+                <p className="text-muted-foreground text-sm">{selected.city}</p>
+              </div>
+              <button
+                onClick={() => setSelected(null)}
+                className="text-muted-foreground hover:bg-muted shrink-0 rounded-full p-1"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <button
+              onClick={() => router.push(`/clubs/${selected.slug}`)}
+              className="bg-primary text-primary-foreground mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium"
+            >
+              Ver detalle
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
