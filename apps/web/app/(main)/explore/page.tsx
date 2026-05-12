@@ -1,14 +1,9 @@
 import { Suspense } from 'react'
-import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { ClubCard } from '@/components/clubs/club-card'
 import { SportFilter } from '@/components/clubs/sport-filter'
 import { ViewToggle } from '@/components/clubs/view-toggle'
-
-const ClubsMap = dynamic(() => import('@/components/clubs/clubs-map').then((m) => m.ClubsMap), {
-  ssr: false,
-  loading: () => <div className="bg-muted h-full w-full animate-pulse" />,
-})
+import { MapWrapper } from '@/components/clubs/map-wrapper'
 
 interface Props {
   searchParams: Promise<{ sport?: string; q?: string; view?: string }>
@@ -53,7 +48,7 @@ export default async function ExplorePage({ searchParams }: Props) {
       {/* Content */}
       {isMap ? (
         <div className="min-h-0 flex-1">
-          <ClubsMap clubs={filtered ?? []} />
+          <MapWrapper clubs={filtered ?? []} />
         </div>
       ) : (
         <div className="flex-1 overflow-y-auto p-4">
