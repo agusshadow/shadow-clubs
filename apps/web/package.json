@@ -16,6 +16,7 @@
     "@shadow-clubs/supabase": "workspace:*",
     "@shadow-clubs/types": "workspace:*",
     "@shadow-clubs/utils": "workspace:*",
+    "@supabase/ssr": "^0.10.3",
     "next": "16.2.6",
     "react": "19.2.4",
     "react-dom": "19.2.4"

@@ -1,4 +1,4 @@
-// Supabase client and generated types will live here
-// Run `supabase gen types` and place output in ./database.types.ts
-
-export type {}
+export { createClient } from './client'
+export { createServerClient } from './server'
+export { updateSession } from './middleware'
+export type { Database } from './database.types'
