@@ -1,0 +1,24 @@
+{
+  "name": "shadow-clubs",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "dev:admin": "turbo dev --filter=admin",
+    "dev:web": "turbo dev --filter=web",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "^5",
+    "prettier": "^3",
+    "@types/node": "^20"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@11.1.0"
+}
