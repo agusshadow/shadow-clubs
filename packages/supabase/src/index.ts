@@ -1,4 +1,5 @@
 export { createClient } from './client'
 export { createServerClient } from './server'
+export { createServiceClient } from './service'
 export { updateSession } from './middleware'
 export type { Database, Tables, TablesInsert, TablesUpdate, Enums } from './database.types'
