@@ -11,7 +11,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect('/login')
 
-  const fullName = user.user_metadata?.full_name ?? user.email ?? 'Usuario'
+  const firstName = user.user_metadata?.first_name ?? ''
+  const lastName = user.user_metadata?.last_name ?? ''
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || user.email || 'Usuario'
 
   return (
     <div className="flex h-full">
