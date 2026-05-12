@@ -11,6 +11,7 @@ export type MapClub = {
   name: string
   slug: string
   city: string
+  cover_url: string | null
   lat: number | null
   lng: number | null
 }
@@ -97,26 +98,42 @@ export function ClubsMap({ clubs }: { clubs: MapClub[] }) {
 
       {selected && (
         <div className="animate-in slide-in-from-bottom-2 absolute right-4 bottom-4 left-4 z-[1000] duration-150">
-          <div className="bg-card rounded-2xl border p-4 shadow-xl">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="truncate font-semibold">{selected.name}</p>
-                <p className="text-muted-foreground text-sm">{selected.city}</p>
-              </div>
+          <div className="bg-card overflow-hidden rounded-2xl border shadow-xl">
+            {/* Cover image */}
+            <div className="bg-muted relative aspect-[16/7] w-full overflow-hidden">
+              {selected.cover_url ? (
+                <img
+                  src={selected.cover_url}
+                  alt={selected.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <span className="text-muted-foreground text-4xl font-bold opacity-20">
+                    {selected.name[0]}
+                  </span>
+                </div>
+              )}
               <button
                 onClick={() => setSelected(null)}
-                className="text-muted-foreground hover:bg-muted shrink-0 rounded-full p-1"
+                className="absolute top-2 right-2 rounded-full bg-black/40 p-1.5 text-white backdrop-blur-sm"
               >
-                <X className="h-4 w-4" />
+                <X className="h-3.5 w-3.5" />
               </button>
             </div>
-            <button
-              onClick={() => router.push(`/clubs/${selected.slug}`)}
-              className="bg-primary text-primary-foreground mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium"
-            >
-              Ver detalle
-              <ArrowRight className="h-4 w-4" />
-            </button>
+
+            {/* Info + CTA */}
+            <div className="p-4">
+              <p className="truncate font-semibold">{selected.name}</p>
+              <p className="text-muted-foreground text-sm">{selected.city}</p>
+              <button
+                onClick={() => router.push(`/clubs/${selected.slug}`)}
+                className="bg-primary text-primary-foreground mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-medium"
+              >
+                Ver detalle
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       )}
