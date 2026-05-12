@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { CalendarCheck, ChevronRight, LogOut, TrendingUp } from 'lucide-react'
+import { CalendarCheck, ChevronRight, LogOut, TrendingUp, Dumbbell } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/lib/actions/auth'
 import { ProfileForm } from '@/components/profile/profile-form'
@@ -71,7 +71,7 @@ export default async function ProfilePage() {
             <p className="text-muted-foreground text-xs">Gastado</p>
           </div>
           <div className="space-y-1 rounded-xl border p-3 text-center">
-            <div className="mx-auto text-lg">🎾</div>
+            <Dumbbell className="text-muted-foreground mx-auto h-5 w-5" />
             <p className="text-xl font-bold">{sports.length}</p>
             <p className="text-muted-foreground text-xs">Deportes</p>
           </div>
