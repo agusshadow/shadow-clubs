@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 const tabs = [
   { suffix: '', label: 'Resumen' },
   { suffix: '/courts', label: 'Canchas' },
+  { suffix: '/reservations', label: 'Reservas' },
   { suffix: '/settings', label: 'Configuración' },
 ]
 
