@@ -15,6 +15,7 @@
     "@supabase/supabase-js": "^2"
   },
   "devDependencies": {
+    "next": "16.2.6",
     "typescript": "^5"
   }
 }
