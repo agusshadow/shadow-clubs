@@ -9,13 +9,31 @@
     "dev:web": "turbo dev --filter=web",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
-    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "turbo": "latest",
-    "typescript": "^5",
+    "@commitlint/cli": "^21.0.0",
+    "@commitlint/config-conventional": "^21.0.0",
+    "@types/node": "^20",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
     "prettier": "^3",
-    "@types/node": "^20"
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "turbo": "latest",
+    "typescript": "^5"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,mjs,cjs}": [
+      "prettier --write"
+    ],
+    "*.{json,md,yaml}": [
+      "prettier --write"
+    ]
   },
   "engines": {
     "node": ">=18"
