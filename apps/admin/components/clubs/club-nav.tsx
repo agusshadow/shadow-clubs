@@ -8,6 +8,7 @@ const tabs = [
   { suffix: '', label: 'Resumen' },
   { suffix: '/courts', label: 'Canchas' },
   { suffix: '/reservations', label: 'Reservas' },
+  { suffix: '/team', label: 'Equipo' },
   { suffix: '/integrations', label: 'Integraciones' },
   { suffix: '/settings', label: 'Configuración' },
 ]
