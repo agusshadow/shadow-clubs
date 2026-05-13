@@ -8,6 +8,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      club_applications: {
+        Row: {
+          additional_info: string | null
+          address: string
+          applicant_id: string
+          city: string
+          club_name: string
+          created_at: string
+          id: string
+          phone: string | null
+          province: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sport_types: string[]
+          status: Database['public']['Enums']['application_status']
+          updated_at: string
+        }
+        Insert: {
+          additional_info?: string | null
+          address: string
+          applicant_id: string
+          city: string
+          club_name: string
+          created_at?: string
+          id?: string
+          phone?: string | null
+          province?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sport_types?: string[]
+          status?: Database['public']['Enums']['application_status']
+          updated_at?: string
+        }
+        Update: {
+          additional_info?: string | null
+          address?: string
+          applicant_id?: string
+          city?: string
+          club_name?: string
+          created_at?: string
+          id?: string
+          phone?: string | null
+          province?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sport_types?: string[]
+          status?: Database['public']['Enums']['application_status']
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'club_applications_applicant_id_fkey'
+            columns: ['applicant_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'club_applications_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       club_cancellation_policies: {
         Row: {
           club_id: string
@@ -100,6 +169,7 @@ export type Database = {
           is_active: boolean
           mp_access_token: string
           mp_public_key: string
+          mp_refresh_token: string | null
           mp_user_id: string
           updated_at: string
         }
@@ -111,6 +181,7 @@ export type Database = {
           is_active?: boolean
           mp_access_token: string
           mp_public_key: string
+          mp_refresh_token?: string | null
           mp_user_id: string
           updated_at?: string
         }
@@ -122,6 +193,7 @@ export type Database = {
           is_active?: boolean
           mp_access_token?: string
           mp_public_key?: string
+          mp_refresh_token?: string | null
           mp_user_id?: string
           updated_at?: string
         }
@@ -148,6 +220,7 @@ export type Database = {
           lat: number | null
           lng: number | null
           logo_url: string | null
+          mp_connected: boolean
           name: string
           phone: string | null
           province: string
@@ -167,6 +240,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           logo_url?: string | null
+          mp_connected?: boolean
           name: string
           phone?: string | null
           province?: string
@@ -186,6 +260,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           logo_url?: string | null
+          mp_connected?: boolean
           name?: string
           phone?: string | null
           province?: string
@@ -569,6 +644,7 @@ export type Database = {
       unaccent: { Args: { '': string }; Returns: string }
     }
     Enums: {
+      application_status: 'pending' | 'approved' | 'rejected'
       club_role: 'club_owner' | 'club_administrator'
       notification_channel: 'email' | 'push' | 'whatsapp'
       notification_type:
@@ -724,6 +800,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      application_status: ['pending', 'approved', 'rejected'],
       club_role: ['club_owner', 'club_administrator'],
       notification_channel: ['email', 'push', 'whatsapp'],
       notification_type: [
