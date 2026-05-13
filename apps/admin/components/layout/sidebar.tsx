@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   BarChart3,
   Building2,
+  ClipboardList,
   LayoutDashboard,
   Users,
   ChevronLeft,
@@ -15,16 +16,38 @@ import { cn } from '@/lib/utils'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Separator } from '@/components/ui/separator'
 
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/clubs', label: 'Clubes', icon: Building2 },
-  { href: '/users', label: 'Usuarios', icon: Users },
-  { href: '/reports', label: 'Reportes', icon: BarChart3 },
-]
+interface NavItem {
+  href: string
+  label: string
+  icon: React.ElementType
+  adminOnly?: boolean
+  badge?: number
+}
 
-export function Sidebar() {
+interface Props {
+  isPlatformAdmin: boolean
+  pendingApplications: number
+}
+
+export function Sidebar({ isPlatformAdmin, pendingApplications }: Props) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
+
+  const navItems: NavItem[] = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/clubs', label: 'Clubes', icon: Building2 },
+    {
+      href: '/applications',
+      label: 'Solicitudes',
+      icon: ClipboardList,
+      adminOnly: true,
+      badge: pendingApplications,
+    },
+    { href: '/users', label: 'Usuarios', icon: Users, adminOnly: true },
+    { href: '/reports', label: 'Reportes', icon: BarChart3, adminOnly: true },
+  ]
+
+  const visibleItems = navItems.filter((item) => !item.adminOnly || isPlatformAdmin)
 
   return (
     <aside
@@ -40,7 +63,7 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-1 p-2">
-        {navItems.map(({ href, label, icon: Icon }) => {
+        {visibleItems.map(({ href, label, icon: Icon, badge }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
           const item = (
             <Link
@@ -53,7 +76,16 @@ export function Sidebar() {
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              {!collapsed && <span>{label}</span>}
+              {!collapsed && (
+                <span className="flex flex-1 items-center justify-between">
+                  {label}
+                  {badge && badge > 0 ? (
+                    <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-xs leading-none">
+                      {badge}
+                    </span>
+                  ) : null}
+                </span>
+              )}
             </Link>
           )
 
@@ -61,7 +93,10 @@ export function Sidebar() {
             return (
               <Tooltip key={href}>
                 <TooltipTrigger asChild>{item}</TooltipTrigger>
-                <TooltipContent side="right">{label}</TooltipContent>
+                <TooltipContent side="right">
+                  {label}
+                  {badge && badge > 0 ? ` (${badge})` : ''}
+                </TooltipContent>
               </Tooltip>
             )
           }

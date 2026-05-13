@@ -11,13 +11,29 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect('/login')
 
-  const firstName = user.user_metadata?.first_name ?? ''
-  const lastName = user.user_metadata?.last_name ?? ''
+  const [{ data: profile }, { count: pendingApplications }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('first_name, last_name, platform_role')
+      .eq('id', user.id)
+      .single(),
+    supabase
+      .from('club_applications')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending'),
+  ])
+
+  const isPlatformAdmin = profile?.platform_role === 'platform_admin'
+  const firstName = profile?.first_name ?? user.user_metadata?.first_name ?? ''
+  const lastName = profile?.last_name ?? user.user_metadata?.last_name ?? ''
   const fullName = [firstName, lastName].filter(Boolean).join(' ') || user.email || 'Usuario'
 
   return (
     <div className="flex h-full">
-      <Sidebar />
+      <Sidebar
+        isPlatformAdmin={isPlatformAdmin}
+        pendingApplications={isPlatformAdmin ? (pendingApplications ?? 0) : 0}
+      />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar
           email={user.email!}
