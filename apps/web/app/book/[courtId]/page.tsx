@@ -32,14 +32,20 @@ export default async function BookSummaryPage({ params, searchParams }: Props) {
 
     supabase
       .from('courts')
-      .select('id, name, sport, clubs(name, slug, address, city)')
+      .select('id, name, sport, clubs(name, slug, address, city, mp_connected)')
       .eq('id', courtId)
       .single(),
   ])
 
   if (!slot || !court) notFound()
 
-  const club = court.clubs as { name: string; slug: string; address: string; city: string } | null
+  const club = court.clubs as {
+    name: string
+    slug: string
+    address: string
+    city: string
+    mp_connected: boolean
+  } | null
   const commissionRate = parseFloat(process.env.PLATFORM_COMMISSION_RATE ?? '0.08')
   const courtAmount = Number(slot.price_ars)
   const platformFee = Math.round(courtAmount * commissionRate * 100) / 100
@@ -125,7 +131,13 @@ export default async function BookSummaryPage({ params, searchParams }: Props) {
 
       {/* Bottom action */}
       <div className="border-t p-4">
-        {user ? (
+        {club && !club.mp_connected ? (
+          <div className="rounded-xl border border-dashed p-4 text-center">
+            <p className="text-muted-foreground text-sm">
+              Este club aún no tiene pagos configurados. Contactalo directamente para reservar.
+            </p>
+          </div>
+        ) : user ? (
           <form action={action}>
             <input type="hidden" name="courtId" value={courtId} />
             <input type="hidden" name="slotId" value={slotId} />
