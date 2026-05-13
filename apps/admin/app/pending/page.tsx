@@ -22,7 +22,7 @@ export default async function PendingPage() {
   const isRejected = application?.status === 'rejected'
 
   return (
-    <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+    <div className="text-center">
       <div className="max-w-md space-y-6">
         {isRejected ? (
           <>
