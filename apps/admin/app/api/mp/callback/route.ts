@@ -59,6 +59,13 @@ export async function GET(request: NextRequest) {
   })
 
   if (!tokenRes.ok) {
+    const errBody = await tokenRes.text().catch(() => '(no body)')
+    console.error('[mp/callback] token exchange failed', {
+      status: tokenRes.status,
+      body: errBody,
+      redirect_uri: redirectUri,
+      client_id: process.env.MP_APP_ID,
+    })
     return NextResponse.redirect(new URL(`/clubs/${clubId}/integrations?error=token`, adminUrl))
   }
 
