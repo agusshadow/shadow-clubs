@@ -1,3 +1,4 @@
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Topbar } from '@/components/layout/topbar'
@@ -11,19 +12,33 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!user) redirect('/login')
 
-  const [{ data: profile }, { count: pendingApplications }] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('first_name, last_name, platform_role')
-      .eq('id', user.id)
-      .single(),
-    supabase
-      .from('club_applications')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending'),
-  ])
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') ?? ''
+
+  const [{ data: profile }, { count: pendingApplications }, { count: clubCount }] =
+    await Promise.all([
+      supabase
+        .from('profiles')
+        .select('first_name, last_name, platform_role')
+        .eq('id', user.id)
+        .single(),
+      supabase
+        .from('club_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      supabase
+        .from('club_members')
+        .select('*', { count: 'exact', head: true })
+        .eq('profile_id', user.id),
+    ])
 
   const isPlatformAdmin = profile?.platform_role === 'platform_admin'
+  const hasClubs = (clubCount ?? 0) > 0
+
+  if (!isPlatformAdmin && !hasClubs && pathname !== '/pending') {
+    redirect('/pending')
+  }
+
   const firstName = profile?.first_name ?? user.user_metadata?.first_name ?? ''
   const lastName = profile?.last_name ?? user.user_metadata?.last_name ?? ''
   const fullName = [firstName, lastName].filter(Boolean).join(' ') || user.email || 'Usuario'
