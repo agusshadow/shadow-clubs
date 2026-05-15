@@ -52,9 +52,11 @@ export function ClubsMap({ clubs }: { clubs: MapClub[] }) {
     const map = L.map(containerRef.current, { zoomControl: false }).setView(BUENOS_AIRES, 12)
     mapRef.current = map
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://osm.org/copyright">OSM</a>',
-      maxZoom: 19,
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 20,
     }).addTo(map)
 
     L.control.zoom({ position: 'bottomright' }).addTo(map)
