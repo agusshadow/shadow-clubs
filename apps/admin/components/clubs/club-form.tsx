@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
+import { LocationPicker } from './location-picker'
 import type { Tables } from '@shadow-clubs/supabase'
 
 type Club = Tables<'clubs'>
@@ -21,13 +22,48 @@ export function ClubForm({ club, action, submitLabel = 'Guardar' }: ClubFormProp
   const [isPending, startTransition] = useTransition()
   const [isActive, setIsActive] = useState(club?.is_active ?? true)
   const [error, setError] = useState<string | null>(null)
+  const [coords, setCoords] = useState<{ lat: number | null; lng: number | null }>({
+    lat: club?.lat ?? null,
+    lng: club?.lng ?? null,
+  })
+  const [geocoding, setGeocoding] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
+
+  async function geocodeFromAddress() {
+    const form = formRef.current
+    if (!form) return
+    const address = (form.elements.namedItem('address') as HTMLInputElement)?.value
+    const city = (form.elements.namedItem('city') as HTMLInputElement)?.value
+    const province = (form.elements.namedItem('province') as HTMLInputElement)?.value
+    const query = [address, city, province, 'Argentina'].filter(Boolean).join(', ')
+    if (!query.trim()) return
+
+    setGeocoding(true)
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
+        { headers: { 'Accept-Language': 'es' } }
+      )
+      const data = await res.json()
+      if (data[0]) {
+        setCoords({ lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) })
+      }
+    } catch {
+      // silently fail — user can place pin manually
+    } finally {
+      setGeocoding(false)
+    }
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
     const formData = new FormData(e.currentTarget)
     formData.set('is_active', String(isActive))
+    // Ensure coords from state override any stale hidden inputs
+    formData.set('lat', coords.lat != null ? String(coords.lat) : '')
+    formData.set('lng', coords.lng != null ? String(coords.lng) : '')
     startTransition(async () => {
       const result = await action(formData)
       if (result?.error) {
@@ -39,7 +75,7 @@ export function ClubForm({ club, action, submitLabel = 'Guardar' }: ClubFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
       {error && (
         <p className="text-destructive rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm">
           {error}
@@ -83,30 +119,6 @@ export function ClubForm({ club, action, submitLabel = 'Guardar' }: ClubFormProp
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="lat">Latitud</Label>
-          <Input
-            id="lat"
-            name="lat"
-            type="number"
-            step="0.000001"
-            defaultValue={club?.lat?.toString() ?? ''}
-            placeholder="-34.603722"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="lng">Longitud</Label>
-          <Input
-            id="lng"
-            name="lng"
-            type="number"
-            step="0.000001"
-            defaultValue={club?.lng?.toString() ?? ''}
-            placeholder="-58.381592"
-          />
-        </div>
-
-        <div className="space-y-2">
           <Label htmlFor="phone">Teléfono</Label>
           <Input
             id="phone"
@@ -129,6 +141,16 @@ export function ClubForm({ club, action, submitLabel = 'Guardar' }: ClubFormProp
             type="url"
             defaultValue={club?.website ?? ''}
             placeholder="https://"
+          />
+        </div>
+
+        <div className="sm:col-span-2">
+          <LocationPicker
+            lat={coords.lat}
+            lng={coords.lng}
+            onChange={(lat, lng) => setCoords({ lat, lng })}
+            onGeocode={geocodeFromAddress}
+            geocoding={geocoding}
           />
         </div>
       </div>
