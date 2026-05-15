@@ -55,6 +55,8 @@ export async function createApplication(_: unknown, formData: FormData) {
     province: formData.get('province'),
     sport_types: formData.getAll('sport_types'),
     additional_info: formData.get('additional_info') || undefined,
+    lat: formData.get('lat') || undefined,
+    lng: formData.get('lng') || undefined,
   })
 
   if (!parsed.success) {
@@ -73,6 +75,8 @@ export async function createApplication(_: unknown, formData: FormData) {
     province,
     sport_types,
     additional_info,
+    lat,
+    lng,
   } = parsed.data
 
   const authSupabase = await createClient()
@@ -104,6 +108,8 @@ export async function createApplication(_: unknown, formData: FormData) {
     sport_types,
     phone,
     additional_info: additional_info ?? null,
+    lat: lat ?? null,
+    lng: lng ?? null,
   })
 
   if (appError) {
@@ -147,6 +153,8 @@ export async function approveApplication(id: string): Promise<void> {
       city: app.city,
       province: app.province,
       phone: app.phone,
+      lat: app.lat ?? null,
+      lng: app.lng ?? null,
       is_active: true,
     })
     .select('id')

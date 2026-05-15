@@ -12,6 +12,14 @@ export const applicationSchema = z.object({
   province: z.string().min(2, 'La provincia es requerida').max(100),
   sport_types: z.array(z.string()).min(1, 'Seleccioná al menos un deporte'),
   additional_info: z.string().max(500).optional(),
+  lat: z.preprocess(
+    (v) => (v === '' || v == null ? null : parseFloat(String(v))),
+    z.number().min(-90).max(90).nullable().optional()
+  ),
+  lng: z.preprocess(
+    (v) => (v === '' || v == null ? null : parseFloat(String(v))),
+    z.number().min(-180).max(180).nullable().optional()
+  ),
 })
 
 export type ApplicationInput = z.infer<typeof applicationSchema>

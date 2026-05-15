@@ -6,6 +6,7 @@ import { verifyEmail, resendCode } from '@/lib/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { AddressAutocomplete, type AddressResult } from '@/components/clubs/address-autocomplete'
 
 const SPORTS = [
   { value: 'paddle', label: 'Pádel' },
@@ -104,11 +105,28 @@ function OtpStep({ email }: { email: string }) {
 export function RegisterForm() {
   const [state, action, pending] = useActionState(createApplication, null)
   const [selectedSports, setSelectedSports] = useState<string[]>([])
+  const [location, setLocation] = useState<{
+    address: string
+    city: string
+    province: string
+    lat: number | null
+    lng: number | null
+  }>({ address: '', city: '', province: 'Buenos Aires', lat: null, lng: null })
 
   function toggleSport(value: string) {
     setSelectedSports((prev) =>
       prev.includes(value) ? prev.filter((s) => s !== value) : [...prev, value]
     )
+  }
+
+  function handleAddressSelect(result: AddressResult) {
+    setLocation({
+      address: result.address,
+      city: result.city,
+      province: result.province || 'Buenos Aires',
+      lat: result.lat,
+      lng: result.lng,
+    })
   }
 
   if (state?.step === 'verify') {
@@ -174,19 +192,33 @@ export function RegisterForm() {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="address">Dirección</Label>
-            <Input id="address" name="address" placeholder="Av. Corrientes 1234" required />
+            <AddressAutocomplete
+              defaultValue={location.address}
+              placeholder="Av. Corrientes 1234"
+              required
+              onSelect={handleAddressSelect}
+            />
+            <input type="hidden" name="address" value={location.address} />
+            <input type="hidden" name="city" value={location.city} />
+            <input type="hidden" name="province" value={location.province} />
+            <input type="hidden" name="lat" value={location.lat ?? ''} />
+            <input type="hidden" name="lng" value={location.lng ?? ''} />
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="city">Ciudad</Label>
-              <Input id="city" name="city" placeholder="Buenos Aires" required />
+              <Label>Ciudad</Label>
+              <Input
+                value={location.city}
+                onChange={(e) => setLocation((l) => ({ ...l, city: e.target.value }))}
+                placeholder="Buenos Aires"
+                required
+              />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="province">Provincia</Label>
+              <Label>Provincia</Label>
               <select
-                id="province"
-                name="province"
-                defaultValue="Buenos Aires"
+                value={location.province}
+                onChange={(e) => setLocation((l) => ({ ...l, province: e.target.value }))}
                 className="border-input bg-background focus:ring-ring h-9 w-full rounded-md border px-3 text-sm outline-none focus:ring-2"
               >
                 {PROVINCES.map((p) => (

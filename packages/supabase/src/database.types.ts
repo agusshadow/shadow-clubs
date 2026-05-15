@@ -17,6 +17,8 @@ export type Database = {
           club_name: string
           created_at: string
           id: string
+          lat: number | null
+          lng: number | null
           phone: string | null
           province: string
           rejection_reason: string | null
@@ -34,6 +36,8 @@ export type Database = {
           club_name: string
           created_at?: string
           id?: string
+          lat?: number | null
+          lng?: number | null
           phone?: string | null
           province?: string
           rejection_reason?: string | null
@@ -51,6 +55,8 @@ export type Database = {
           club_name?: string
           created_at?: string
           id?: string
+          lat?: number | null
+          lng?: number | null
           phone?: string | null
           province?: string
           rejection_reason?: string | null

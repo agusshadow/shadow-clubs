@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { LocationPicker } from './location-picker'
+import { AddressAutocomplete, type AddressResult } from './address-autocomplete'
 import type { Tables } from '@shadow-clubs/supabase'
 
 type Club = Tables<'clubs'>
@@ -27,8 +28,22 @@ export function ClubForm({ club, action, submitLabel = 'Guardar' }: ClubFormProp
     lng: club?.lng ?? null,
   })
   const [geocoding, setGeocoding] = useState(false)
+  const [addressFields, setAddressFields] = useState({
+    address: club?.address ?? '',
+    city: club?.city ?? '',
+    province: club?.province ?? 'Buenos Aires',
+  })
   const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
+
+  function handleAddressSelect(result: AddressResult) {
+    setAddressFields({
+      address: result.address,
+      city: result.city,
+      province: result.province || 'Buenos Aires',
+    })
+    setCoords({ lat: result.lat, lng: result.lng })
+  }
 
   async function geocodeFromAddress() {
     const form = formRef.current
@@ -100,12 +115,23 @@ export function ClubForm({ club, action, submitLabel = 'Guardar' }: ClubFormProp
 
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="address">Dirección *</Label>
-          <Input id="address" name="address" defaultValue={club?.address} required />
+          <AddressAutocomplete
+            defaultValue={addressFields.address}
+            required
+            onSelect={handleAddressSelect}
+          />
+          <input type="hidden" name="address" value={addressFields.address} />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="city">Ciudad *</Label>
-          <Input id="city" name="city" defaultValue={club?.city} required />
+          <Input
+            id="city"
+            name="city"
+            value={addressFields.city}
+            onChange={(e) => setAddressFields((f) => ({ ...f, city: e.target.value }))}
+            required
+          />
         </div>
 
         <div className="space-y-2">
@@ -113,7 +139,8 @@ export function ClubForm({ club, action, submitLabel = 'Guardar' }: ClubFormProp
           <Input
             id="province"
             name="province"
-            defaultValue={club?.province ?? 'Buenos Aires'}
+            value={addressFields.province}
+            onChange={(e) => setAddressFields((f) => ({ ...f, province: e.target.value }))}
             required
           />
         </div>
