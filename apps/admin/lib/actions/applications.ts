@@ -75,24 +75,21 @@ export async function createApplication(_: unknown, formData: FormData) {
     additional_info,
   } = parsed.data
 
-  const supabase = createServiceClient()
-
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+  const authSupabase = await createClient()
+  const { data: authData, error: authError } = await authSupabase.auth.signUp({
     email,
     password,
-    email_confirm: true,
-    user_metadata: { first_name, last_name },
+    options: { data: { first_name, last_name } },
   })
 
-  if (authError) {
-    if (
-      authError.message.includes('already registered') ||
-      authError.message.includes('already been registered')
-    ) {
-      return { error: 'Ya existe una cuenta con ese email' }
-    }
-    return { error: 'Error al crear la cuenta. Intentá de nuevo.' }
+  if (authError) return { error: 'Error al crear la cuenta. Intentá de nuevo.' }
+
+  // signUp returns an empty identities array when the email is already registered
+  if (!authData.user || authData.user.identities?.length === 0) {
+    return { error: 'Ya existe una cuenta con ese email' }
   }
+
+  const supabase = createServiceClient()
 
   const userId = authData.user.id
 
@@ -120,11 +117,10 @@ export async function createApplication(_: unknown, formData: FormData) {
     `<p>Hola ${first_name},</p>
      <p>Recibimos tu solicitud para registrar <strong>${club_name}</strong> en Shadow Clubs.</p>
      <p>La revisaremos en las próximas 24-48hs y te avisaremos por este mismo email.</p>
-     <p>Mientras tanto, ya podés ingresar a tu cuenta con tus credenciales.</p>
      <p>Saludos,<br/>El equipo de Shadow Clubs</p>`
   )
 
-  redirect('/login?registered=1')
+  return { step: 'verify' as const, email }
 }
 
 export async function approveApplication(id: string): Promise<void> {
